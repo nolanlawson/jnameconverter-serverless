@@ -22,7 +22,7 @@ import com.google.gson.GsonBuilder;
  */
 public class App implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
 
-    private static final int MAX_LENGTH = 200;
+    private static final int MAX_LENGTH = 100;
     private static final Gson gson = new GsonBuilder().create();
     private static final JapaneseNameGenerator japaneseNameGenerator = buildJapaneseNameGenerator();
     private static final JapaneseNameGenerator buildJapaneseNameGenerator() {
