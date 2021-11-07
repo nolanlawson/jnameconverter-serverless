@@ -16,7 +16,6 @@ import com.nolanlawson.japanesenamegenerator.v3.ConversionException;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
 
 /**
  * Handler for requests to Lambda function.
@@ -48,8 +47,7 @@ public class App implements RequestHandler<APIGatewayProxyRequestEvent, APIGatew
                 .withHeaders(headers);
         String query = null;
         try {
-            Map<String, String> map = gson.fromJson(input.getBody(), new TypeToken<Map<String,String>>(){}.getType());
-            query = map.get("q");
+            query = input.getQueryStringParameters().get("q");
             ConversionResult conversionResult = this.getConversionResult(query);
             String output = gson.toJson(conversionResult);
 
