@@ -1,3 +1,3 @@
 # jnameconverter-serverless
 
-Serverless version of the Japanese Name Converter app.
+Serverless (AWS Lambda) version of the Japanese Name Converter app.
