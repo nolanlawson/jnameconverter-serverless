@@ -53,7 +53,7 @@ public class App implements RequestHandler<APIGatewayProxyRequestEvent, APIGatew
             ConversionResult conversionResult = this.getConversionResult(query);
             String output = this.conversionResultToJsonString(conversionResult);
 
-            headers.put("Cache-Control", "public, max-age=604800, s-max-age=604800");
+            headers.put("Cache-Control", "public, max-age=604800");
             return response
                     .withStatusCode(200)
                     .withBody(output);
