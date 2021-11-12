@@ -10,12 +10,10 @@ import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
 
+import org.json.simple.JSONValue;
 import com.nolanlawson.japanesenamegenerator.v3.JapaneseNameGenerator;
 import com.nolanlawson.japanesenamegenerator.v3.util.Pair;
 import com.nolanlawson.japanesenamegenerator.v3.ConversionException;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
 /**
  * Handler for requests to Lambda function.
@@ -23,7 +21,6 @@ import com.google.gson.GsonBuilder;
 public class App implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
 
     private static final int MAX_LENGTH = 100;
-    private static final Gson gson = new GsonBuilder().create();
     private static final JapaneseNameGenerator japaneseNameGenerator = buildJapaneseNameGenerator();
     private static final JapaneseNameGenerator buildJapaneseNameGenerator() {
         InputStream roomajiInputStream = new BufferedInputStream(
@@ -54,7 +51,7 @@ public class App implements RequestHandler<APIGatewayProxyRequestEvent, APIGatew
                 throw new Error("Max length exceeded. Max is " + MAX_LENGTH + " and length is: " + len);
             }
             ConversionResult conversionResult = this.getConversionResult(query);
-            String output = gson.toJson(conversionResult);
+            String output = this.conversionResultToJsonString(conversionResult);
 
             headers.put("Cache-Control", "public, max-age=604800, s-max-age=604800");
             return response
@@ -63,10 +60,35 @@ public class App implements RequestHandler<APIGatewayProxyRequestEvent, APIGatew
         } catch (Throwable t) {
             t.printStackTrace();
             ConversionResult conversionResult = new ConversionResult(true, null, null);
-            String output = gson.toJson(conversionResult);
+            String output = this.conversionResultToJsonString(conversionResult);
+            System.out.println("output: " + output);
             return response
                     .withStatusCode(500)
                     .withBody(output);
         }
+    }
+
+    private String conversionResultToJsonString(ConversionResult conversionResult) {
+        return String.format(
+                "{\"error\":%s,\"roomaji\":%s,\"katakana\":%s}",
+                conversionResult.isError() ? "true" : "false",
+                valueToJsonString(conversionResult.getRoomaji()),
+                valueToJsonString(conversionResult.getKatakana())
+        );
+    }
+
+    private String valueToJsonString(String value) {
+        return value == null ? "null" : String.format("\"%s\"", JSONValue.escape(value));
+    }
+
+    // Test manually: java -cp ./target/JNameConverter-1.0.jar -verbose:class jnameconverter.App
+    public static void main(String[] args) {
+        App app = new App();
+        APIGatewayProxyRequestEvent input = new APIGatewayProxyRequestEvent();
+        input.setQueryStringParameters(new HashMap<String, String>(){{
+            put("q", "nolan");
+        }});
+        APIGatewayProxyResponseEvent result = app.handleRequest(input, null);
+        System.out.println(result);
     }
 }

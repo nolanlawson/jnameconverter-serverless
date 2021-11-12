@@ -32,7 +32,7 @@ public class AppTest {
     assertEquals(result.getHeaders().get("Content-Type"), "application/json;charset=utf-8");
     String content = result.getBody();
     assertNotNull(content);
-    assertEquals(content, "{\"error\":true}");
+    assertEquals(content, "{\"error\":true,\"roomaji\":null,\"katakana\":null}");
   }
 
   @Test
@@ -44,7 +44,7 @@ public class AppTest {
     assertEquals(result.getHeaders().get("Content-Type"), "application/json;charset=utf-8");
     String content = result.getBody();
     assertNotNull(content);
-    assertEquals(content, "{\"error\":true}");
+    assertEquals(content, "{\"error\":true,\"roomaji\":null,\"katakana\":null}");
   }
 
   @Test
@@ -63,6 +63,6 @@ public class AppTest {
     assertEquals(result.getHeaders().get("Content-Type"), "application/json;charset=utf-8");
     String content = result.getBody();
     assertNotNull(content);
-    assertEquals(content, "{\"error\":true}");
+    assertEquals(content, "{\"error\":true,\"roomaji\":null,\"katakana\":null}");
   }
 }
