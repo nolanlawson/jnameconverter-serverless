@@ -23,13 +23,56 @@ public class App implements RequestHandler<APIGatewayProxyRequestEvent, APIGatew
     private static final int MAX_LENGTH = 100;
     private static final JapaneseNameGenerator japaneseNameGenerator = buildJapaneseNameGenerator();
     private static final JapaneseNameGenerator buildJapaneseNameGenerator() {
+        long start = System.currentTimeMillis();
         InputStream roomajiInputStream = new BufferedInputStream(
                 App.class.getClassLoader().getResourceAsStream(
                         "roomaji_model_20090128_pop1_3_3_min2_fewer_rules_hacked.txt"));
         InputStream directLookupInputstream = new BufferedInputStream(
                 App.class.getClassLoader().getResourceAsStream(
                         "all_names.txt"));
-        return new JapaneseNameGenerator(roomajiInputStream, directLookupInputstream);
+        JapaneseNameGenerator res = new JapaneseNameGenerator(roomajiInputStream, directLookupInputstream);
+        System.out.println("Took: " + (System.currentTimeMillis() - start) + "ms to start up");
+        return res;
+    }
+
+    private class ConversionResult {
+
+        private boolean error;
+        private String roomaji;
+        private String katakana;
+
+        public ConversionResult() {
+        }
+
+        public ConversionResult(boolean error, String roomaji, String katakana) {
+            this.error = error;
+            this.roomaji = roomaji;
+            this.katakana = katakana;
+        }
+        public boolean isError() {
+            return error;
+        }
+
+        public void setError(boolean error) {
+            this.error = error;
+        }
+
+        public String getRoomaji() {
+            return roomaji;
+        }
+
+        public void setRoomaji(String roomaji) {
+            this.roomaji = roomaji;
+        }
+
+        public String getKatakana() {
+            return katakana;
+        }
+
+        public void setKatakana(String katakana) {
+            this.katakana = katakana;
+        }
+
     }
 
     private ConversionResult getConversionResult(String query) throws ConversionException {
@@ -43,14 +86,15 @@ public class App implements RequestHandler<APIGatewayProxyRequestEvent, APIGatew
 
         APIGatewayProxyResponseEvent response = new APIGatewayProxyResponseEvent()
                 .withHeaders(headers);
-        String query = null;
         try {
-            query = input.getQueryStringParameters().get("q");
+            String query = input.getQueryStringParameters().get("q");
             int len = query.length();
             if (len > MAX_LENGTH) {
                 throw new Error("Max length exceeded. Max is " + MAX_LENGTH + " and length is: " + len);
             }
+            long start = System.currentTimeMillis();
             ConversionResult conversionResult = this.getConversionResult(query);
+            System.out.println("Took: " + (System.currentTimeMillis() - start) + "ms to convert");
             String output = this.conversionResultToJsonString(conversionResult);
 
             headers.put("Cache-Control", "public, max-age=604800");
