@@ -97,7 +97,7 @@ public class App implements RequestHandler<APIGatewayProxyRequestEvent, APIGatew
             System.out.println("Took: " + (System.currentTimeMillis() - start) + "ms to convert");
             String output = this.conversionResultToJsonString(conversionResult);
 
-            headers.put("Cache-Control", "public, max-age=604800, s-max-age=604800");
+            headers.put("Cache-Control", "public, max-age=604800, s-maxage=604800");
             return response
                     .withStatusCode(200)
                     .withBody(output);
